@@ -19,7 +19,7 @@ const moment = require('moment');
     const { email,pass,codigo } = req.query;
    
     const valor = await comprobarJWTPorSocketIO(token);
-    query ="SELECT password,email FROM TableU WHERE email='" + email +  "'";
+    query ="SELECT password,email,id FROM TableU WHERE email='" + email +  "'";
     data = await executeQuery(query);  
     row = data[0]; //
 
@@ -32,7 +32,8 @@ const moment = require('moment');
         }
         return res.json({
             valor: esCorrecta ? '1' : '0',
-            token: token
+            token: token,
+            id:row.id
         });
     }        
  
@@ -41,7 +42,8 @@ const moment = require('moment');
   
     return res.json({
         valor: esCorrecta ? '1' : '0',
-        token: ''
+        token: '',
+        id:row.id
     });
       
   
@@ -51,21 +53,28 @@ const moment = require('moment');
    RegistroUsuario = async(req, res = response ) => {
 
     const { codigo,email,password} = req.query; 
+   
     const token = await generarJWT( codigo );
     const salt = bcryptjs.genSaltSync();
     const pass = bcryptjs.hashSync( password, salt );
 
     try{
-        const query ="INSERT INTO tableU (email,password,token) VALUES ('" + email + "','" + pass + "','" + token + "')";
+        let query ="INSERT INTO tableU (email,password,token) VALUES ('" + email + "','" + pass + "','" + token + "')";
         await executeQuery(query);  
+        query ="SELECT TOP 1 id FROM tableU ORDER BY Id DESC";
+        const  data =   await executeQuery(query);       
+        row = data[0]; //
          return res.json({
             valor: '1',
-            token: token
+            token: token,
+            id:row.id
         });
     }catch(error){
+        console.log(error);
         return res.json({
             valor: '0',
-            token: ''
+            token: '',
+            id: -1
         });
     }   
   
@@ -98,32 +107,35 @@ const moment = require('moment');
 
    GuardarRegistro = async(req, res = response ) => {
     const token = req.header('x-token');
-    const { tipo,importe,concepto} = req.query; 
+    const { tipo,importe,concepto,id} = req.query; 
     const ahora = new Date(); 
-    const fecha = formatoFecha(ahora); 
+    const fecha = formatoFecha(ahora);   
    const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');    
    const valor = await comprobarJWTPorSocketIO(token);
   
    if (valor == '0'){   
         return res.json({
             valor: '0',
-            token: ''
+            token: '',
+            id: -1
         });
    }
    
    try{
-        const query ="INSERT INTO tableP (fecha,importe,tipo,concepto) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "')";
-        
+        const query ="INSERT INTO tableP (fecha,importe,tipo,concepto,usuario) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "'," + id + ")";
+        console.log(query);
         await executeQuery(query);  
          return res.json({
             valor: '1',
-            token: 'token'
+            token: 'token',
+            id: -1
         });
     }catch(error){
-        
+        console.log(error);
         return res.json({
             valor: '0',
-            token: ''
+            token: '',
+            id: -1
         });
     }   
   
