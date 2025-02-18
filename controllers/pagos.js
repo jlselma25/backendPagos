@@ -103,7 +103,7 @@ const moment = require('moment');
     const fecha = formatoFecha(ahora); 
    const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');    
    const valor = await comprobarJWTPorSocketIO(token);
-
+  
    if (valor == '0'){   
         return res.json({
             valor: '0',
@@ -112,7 +112,7 @@ const moment = require('moment');
    }
    
    try{
-        const query ="INSERT INTO tableP (fecha,importe,tipo,concepto) VALUES ('" + fechaFormateada + "',"+ importe + ",'" + tipo + "','" + concepto + "')";
+        const query ="INSERT INTO tableP (fecha,importe,tipo,concepto) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "')";
         
         await executeQuery(query);  
          return res.json({
@@ -135,7 +135,8 @@ const moment = require('moment');
     const dd = String(fecha.getUTCDate()).padStart(2, '0');
     const mm = String(fecha.getUTCMonth() + 1).padStart(2, '0'); // Mes empieza en 0
     const yyyy = fecha.getUTCFullYear();
-    const hh = String(fecha.getUTCHours()).padStart(2, '0'); // **Obtener la hora en UTC**
+    const hh =String(fecha.getHours()).padStart(2, '0');
+   // const hh = String(fecha.getUTCHours()).padStart(2, '0'); // **Obtener la hora en UTC**
     const min = String(fecha.getUTCMinutes()).padStart(2, '0');
     const ss = String(fecha.getUTCSeconds()).padStart(2, '0');
 
