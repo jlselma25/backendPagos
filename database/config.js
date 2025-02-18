@@ -5,8 +5,8 @@
 const config=  {
     user: 'sa',
     password: 'pk',
-    server: '192.168.1.200', 
-  //  server:'supercarmelaoficina.dvrdns.org',   
+  //  server: '192.168.1.200', 
+    server:'supercarmelaoficina.dvrdns.org',   
     database: 'Prueba',
     port: 1433,
     options: {
