@@ -110,8 +110,8 @@ const moment = require('moment');
     const { tipo,importe,concepto,id} = req.query; 
     const ahora = new Date(); 
     const fecha = formatoFecha(ahora);   
-   const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');    
-   const valor = await comprobarJWTPorSocketIO(token);
+    const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');    
+    const valor = await comprobarJWTPorSocketIO(token);
   
    if (valor == '0'){   
         return res.json({
@@ -159,9 +159,67 @@ const moment = require('moment');
  }
 
 
+ ListadoRegistrosFechas = async(req, res = response ) => {  
+
+    try{
+       
+        const token = req.header('x-token');
+       
+        const { usuario,fechaDesde,fechaFin} = req.query; 
+
+        const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
+        const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');  
+        const valor = await comprobarJWTPorSocketIO(token);       
+      
+
+  
+        if (valor == '0'){   
+            
+             return res.json({                 
+                importe: -1,
+                fecha:  '',
+                tipo:''  ,
+                nombre:'',
+                token:'3'                
+             });
+        }
+
+        const query ="SELECT * FROM TableP WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario;     
+
+        const data = await executeQuery(query);  
+       
+        const mappedData = data.map(row => ({           
+            importe: row.importe,
+            fecha:  moment(row.fecha, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+            tipo:  row.tipo == 1 ? 'I' : 'P',
+            nombre:row.concepto,
+            token:''
+
+        }));
+
+        return res.json(mappedData);
+
+
+    }catch(error){
+
+        console.log(error); 
+
+        return res.json({
+            importe: -1,
+            fecha:  '',
+            tipo:''  ,
+            nombre:'',
+            token:'0'         
+        });
+    }   
+  
+   }
+
+
    module.exports = {       
     LoginUsuario, 
     RegistroUsuario,
     CargarTipos,
-    GuardarRegistro
+    GuardarRegistro,
+    ListadoRegistrosFechas
  }
