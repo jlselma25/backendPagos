@@ -22,6 +22,14 @@ const moment = require('moment');
     query ="SELECT password,email,id FROM TableU WHERE email='" + email +  "'";
     data = await executeQuery(query);  
     row = data[0]; //
+    
+    if (data.length == 0){
+        return res.json({
+            valor:  '0',
+            token: token,
+            id: -1
+        });
+    }
 
     if (valor == '0'){       
       
@@ -36,13 +44,13 @@ const moment = require('moment');
             id:row.id
         });
     }        
- 
+    token = await generarJWT( codigo );
     esCorrecta = await bcryptjs.compare(pass, row.password);   
     console.log(row.password); 
   
     return res.json({
         valor: esCorrecta ? '1' : '0',
-        token: '',
+        token: token,
         id:row.id
     });
       
@@ -123,7 +131,7 @@ const moment = require('moment');
    
    try{
         const query ="INSERT INTO tableP (fecha,importe,tipo,concepto,usuario) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "'," + id + ")";
-        console.log(query);
+       
         await executeQuery(query);  
          return res.json({
             valor: '1',
@@ -169,8 +177,7 @@ const moment = require('moment');
 
         const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');  
-        const valor = await comprobarJWTPorSocketIO(token);       
-      
+        const valor = await comprobarJWTPorSocketIO(token);           
 
   
         if (valor == '0'){   
@@ -193,27 +200,53 @@ const moment = require('moment');
             fecha:  moment(row.fecha, 'YYYY-MM-DD').format('DD/MM/YYYY'),
             tipo:  row.tipo == 1 ? 'I' : 'P',
             nombre:row.concepto,
-            token:''
+            token:'',
+            id: row.id
 
         }));
 
         return res.json(mappedData);
 
 
-    }catch(error){
-
-        console.log(error); 
+    }catch(error){      
 
         return res.json({
             importe: -1,
             fecha:  '',
             tipo:''  ,
             nombre:'',
-            token:'0'         
+            token:'0',
+            id: -1    
         });
     }   
   
    }
+
+
+   EliminarRegistro = async(req, res = response ) => {    
+   
+    
+    const { id } = req.query;      
+    const query ="DELETE FROM TableP WHERE id=" + id ;   
+    data = await executeQuery(query);   
+    
+    try{    
+        return res.json({
+            valor: '1',
+            token: '',
+            id: -1
+        });
+    
+        }catch(error){            
+            return res.json({
+                valor:  '0',
+                token: '',
+                id:-1
+            });
+    }     
+  
+   }
+
 
 
    module.exports = {       
@@ -221,5 +254,6 @@ const moment = require('moment');
     RegistroUsuario,
     CargarTipos,
     GuardarRegistro,
-    ListadoRegistrosFechas
+    ListadoRegistrosFechas,
+    EliminarRegistro
  }
