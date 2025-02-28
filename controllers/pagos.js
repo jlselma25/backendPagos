@@ -222,7 +222,7 @@ ObtenerSaldo = async(req, res = response ) => {
              });
         }
 
-        const query ="SELECT * FROM TableP WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario;     
+        const query ="SELECT * FROM TableP WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
 
         const data = await executeQuery(query);  
        
