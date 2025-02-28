@@ -6,7 +6,22 @@ const moment = require('moment');
 
 
 
+ObtenerSaldo = async(req, res = response ) => {
+    let token = req.header('x-token');
+    const valor = await comprobarJWTPorSocketIO(token);
+    const { usuario } = req.query;
+  
 
+    if (valor == '0'){    
+
+        return res.send(-999999);
+    }
+
+    const query ="SELECT TOP 1 saldo FROM TableP WHERE usuario=" +  usuario + " ORDER BY Id DESC";
+   
+    const  data = await executeQuery(query);  
+    return res.json(data[0].saldo);
+}
 
  LoginUsuario = async(req, res = response ) => {
 
@@ -120,6 +135,11 @@ const moment = require('moment');
     const fecha = formatoFecha(ahora);   
     const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');    
     const valor = await comprobarJWTPorSocketIO(token);
+    let query;
+    let saldo = 0;
+
+ 
+
   
    if (valor == '0'){   
         return res.json({
@@ -130,8 +150,19 @@ const moment = require('moment');
    }
    
    try{
-        const query ="INSERT INTO tableP (fecha,importe,tipo,concepto,usuario) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "'," + id + ")";
-       
+
+
+        query = "SELECT TOP 1 saldo FROM tableP ORDER BY Id DESC";
+        const rows = await executeQuery(query);  
+
+        if (rows.length == 0){           
+            saldo  =  tipo == 1 ?  importe : importe * -1;
+        }else{
+            saldo = tipo == 1  ? rows[0].saldo + parseFloat(importe.replace(',', '.')) : rows[0].saldo - parseFloat(importe.replace(',', '.'));
+        }      
+        
+        query ="INSERT INTO tableP (fecha,importe,tipo,concepto,usuario,saldo) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "'," + id + "," + saldo + ")";
+                       
         await executeQuery(query);  
          return res.json({
             valor: '1',
@@ -255,5 +286,6 @@ const moment = require('moment');
     CargarTipos,
     GuardarRegistro,
     ListadoRegistrosFechas,
-    EliminarRegistro
+    EliminarRegistro,
+    ObtenerSaldo
  }
