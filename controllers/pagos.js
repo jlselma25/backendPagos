@@ -279,6 +279,27 @@ ObtenerSaldo = async(req, res = response ) => {
    }
 
 
+   ComprobarUsuario = async(req, res = response ) => {  
+
+        const token = req.header('x-token');
+        const valor = await comprobarJWTPorSocketIO(token);  
+
+        if (valor == '0'){   
+            return res.json({
+                valor: '0',
+                token: '',
+                id: -1
+            });
+        }
+
+        return res.json({
+            valor: '1',
+            token: 'token',
+            id: -1
+        });
+
+   }
+
 
    module.exports = {       
     LoginUsuario, 
@@ -287,5 +308,6 @@ ObtenerSaldo = async(req, res = response ) => {
     GuardarRegistro,
     ListadoRegistrosFechas,
     EliminarRegistro,
-    ObtenerSaldo
+    ObtenerSaldo,
+    ComprobarUsuario
  }
