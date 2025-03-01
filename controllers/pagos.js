@@ -7,15 +7,8 @@ const moment = require('moment');
 
 
 ObtenerSaldo = async(req, res = response ) => {
-    let token = req.header('x-token');
-    const valor = await comprobarJWTPorSocketIO(token);
-    const { usuario } = req.query;
-  
-
-    if (valor == '0'){    
-
-        return res.send(-999999);
-    }
+   
+    const { usuario } = req.query;   
 
     const query ="SELECT TOP 1 saldo FROM TableP WHERE usuario=" +  usuario + " ORDER BY Id DESC";
    
@@ -280,6 +273,7 @@ ObtenerSaldo = async(req, res = response ) => {
    ComprobarToken = async(req, res = response ) => {  
 
     const token = req.header('x-token');
+    console.log('token;' + token);
     const valor = await comprobarJWTPorSocketIO(token);  
 
     if (valor == '0'){   

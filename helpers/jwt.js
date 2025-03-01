@@ -30,9 +30,7 @@ const generarJWT = (uid) => {
 
 const comprobarJWTPorSocketIO = (token = '') => {
 
-    try {
-
-       
+    try {       
 
         const { uid } = jwt.verify(token, process.env.JWT_KEY);
        // req.uid = uid;
