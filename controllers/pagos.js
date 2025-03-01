@@ -133,25 +133,14 @@ ObtenerSaldo = async(req, res = response ) => {
     const { tipo,importe,concepto,id} = req.query; 
     const ahora = new Date(); 
     const fecha = formatoFecha(ahora);   
-    const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');    
-    const valor = await comprobarJWTPorSocketIO(token);
+    const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');  
+   
     let query;
     let saldo = 0;
-
- 
-
   
-   if (valor == '0'){   
-        return res.json({
-            valor: '0',
-            token: '',
-            id: -1
-        });
-   }
+  
    
    try{
-
-
         query = "SELECT TOP 1 saldo FROM tableP ORDER BY Id DESC";
         const rows = await executeQuery(query);  
 
@@ -208,19 +197,7 @@ ObtenerSaldo = async(req, res = response ) => {
 
         const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');  
-        const valor = await comprobarJWTPorSocketIO(token);           
-
-  
-        if (valor == '0'){   
-            
-             return res.json({                 
-                importe: -1,
-                fecha:  '',
-                tipo:''  ,
-                nombre:'',
-                token:'3'                
-             });
-        }
+      
 
         const query ="SELECT * FROM TableP WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
 
@@ -300,6 +277,27 @@ ObtenerSaldo = async(req, res = response ) => {
 
    }
 
+   ComprobarToken = async(req, res = response ) => {  
+
+    const token = req.header('x-token');
+    const valor = await comprobarJWTPorSocketIO(token);  
+
+    if (valor == '0'){   
+        return res.json({
+            valor: '0',
+            token: '',
+            id: -1
+        });
+    }
+
+    return res.json({
+        valor: '1',
+        token: 'token',
+        id: -1
+    });
+
+}
+
 
    module.exports = {       
     LoginUsuario, 
@@ -309,5 +307,6 @@ ObtenerSaldo = async(req, res = response ) => {
     ListadoRegistrosFechas,
     EliminarRegistro,
     ObtenerSaldo,
-    ComprobarUsuario
+    ComprobarUsuario,
+    ComprobarToken
  }
