@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { LoginUsuario,RegistroUsuario,CargarTipos,GuardarRegistro,ListadoRegistrosFechas,EliminarRegistro,ObtenerSaldo,ComprobarUsuario,ComprobarToken} = require('../controllers/pagos');
+const { LoginUsuario,RegistroUsuario,CargarTipos,GuardarRegistro,ListadoRegistrosFechas,EliminarRegistro,ObtenerSaldo,ComprobarUsuario,ComprobarToken,CargarCategorias} = require('../controllers/pagos');
 
 
 const router = Router();
@@ -14,6 +14,7 @@ router.get('/EliminarRegistro/', EliminarRegistro );
 router.get('/ObtenerSaldo/', ObtenerSaldo );
 router.get('/ComprobarUsuario/', ComprobarUsuario );
 router.get('/ComprobarToken/', ComprobarToken );
+router.get('/CargarCategorias/', CargarCategorias );
 
 
 

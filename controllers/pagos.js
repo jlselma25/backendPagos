@@ -121,16 +121,38 @@ ObtenerSaldo = async(req, res = response ) => {
   
    }
 
+
+   CargarCategorias= async(req, res = response ) => {  
+
+    try{
+        const query ="SELECT numero, nombre FROM TableC";       
+        const data = await executeQuery(query);         
+        const mappedData = data.map(row => ({
+            numero: row.numero, 
+            nombre: row.nombre 
+        }));
+       
+        return res.json(mappedData);
+
+
+    }catch(error){
+        return res.json({
+            numero: '0',
+            nombre: ''
+        });
+    }   
+  
+   }
+
    GuardarRegistro = async(req, res = response ) => {
     const token = req.header('x-token');
-    const { tipo,importe,concepto,id} = req.query; 
+    const { tipo,importe,concepto,id,categoria} = req.query; 
     const ahora = new Date(); 
     const fecha = formatoFecha(ahora);   
     const fechaFormateada = moment(fecha, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');  
    
     let query;
-    let saldo = 0;
-  
+    let saldo = 0;  
   
    
    try{
@@ -143,7 +165,7 @@ ObtenerSaldo = async(req, res = response ) => {
             saldo = tipo == 1  ? rows[0].saldo + parseFloat(importe.replace(',', '.')) : rows[0].saldo - parseFloat(importe.replace(',', '.'));
         }      
         
-        query ="INSERT INTO tableP (fecha,importe,tipo,concepto,usuario,saldo) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "'," + id + "," + saldo + ")";
+        query ="INSERT INTO tableP (fecha,importe,tipo,concepto,usuario,saldo,categoria) VALUES ('" + fechaFormateada + "',"+ importe.replace(',', '.') + ",'" + tipo + "','" + concepto + "'," + id + "," + saldo + "," + categoria + ")";
                        
         await executeQuery(query);  
          return res.json({
@@ -272,8 +294,7 @@ ObtenerSaldo = async(req, res = response ) => {
 
    ComprobarToken = async(req, res = response ) => {  
 
-    const token = req.header('x-token');
-    console.log('token;' + token);
+    const token = req.header('x-token');   
     const valor = await comprobarJWTPorSocketIO(token);  
 
     if (valor == '0'){   
@@ -302,5 +323,6 @@ ObtenerSaldo = async(req, res = response ) => {
     EliminarRegistro,
     ObtenerSaldo,
     ComprobarUsuario,
-    ComprobarToken
+    ComprobarToken,
+    CargarCategorias
  }
