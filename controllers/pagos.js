@@ -214,8 +214,8 @@ ObtenerSaldo = async(req, res = response ) => {
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');  
       
 
-        const query ="SELECT * FROM TableP WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
-
+        const query ="SELECT * FROM TableP  WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
+            console.log (query);
         const data = await executeQuery(query);  
        
         const mappedData = data.map(row => ({           
@@ -224,7 +224,8 @@ ObtenerSaldo = async(req, res = response ) => {
             tipo:  row.tipo == 1 ? 'I' : 'P',
             nombre:row.concepto,
             token:'',
-            id: row.id
+            id: row.id,
+          
 
         }));
 
@@ -239,7 +240,8 @@ ObtenerSaldo = async(req, res = response ) => {
             tipo:''  ,
             nombre:'',
             token:'0',
-            id: -1    
+            id: -1 ,
+            
         });
     }   
   
@@ -314,6 +316,42 @@ ObtenerSaldo = async(req, res = response ) => {
 }
 
 
+
+ObtenerEstadisticas = async(req, res = response ) => {  
+
+    try{
+       
+        const token = req.header('x-token');
+       
+        const { usuario,fechaDesde,fechaFin} = req.query; 
+
+        const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
+        const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');        
+
+        const query ="SELECT SUM(Importe) importe, C.Leyenda leyenda FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero   WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  GROUP BY C.Leyenda";     
+            
+        const data = await executeQuery(query);  
+       
+        const mappedData = data.map(row => ({           
+            importe: row.importe,           
+            leyenda: row.leyenda
+
+        }));
+           
+        return res.json(mappedData);
+
+
+    }catch(error){      
+        console.log('paso');
+        return res.json({
+            importe: -1,           
+            leyenda: ''
+        });
+    }   
+  
+   }
+
+
    module.exports = {       
     LoginUsuario, 
     RegistroUsuario,
@@ -324,5 +362,6 @@ ObtenerSaldo = async(req, res = response ) => {
     ObtenerSaldo,
     ComprobarUsuario,
     ComprobarToken,
-    CargarCategorias
+    CargarCategorias,
+    ObtenerEstadisticas
  }
