@@ -328,7 +328,20 @@ ObtenerEstadisticas = async(req, res = response ) => {
         const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');        
 
-        const query ="SELECT SUM(Importe) importe, C.Leyenda leyenda FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero   WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  GROUP BY C.Leyenda";     
+        const query ="SELECT SUM(resul.Importe) importe,resul.leyenda leyenda " +
+
+                    " FROM ("        +
+                              " SELECT SUM(Importe) importe, C.Leyenda leyenda FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
+                              " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda"  +
+
+                              " UNION ALL "  +
+
+                               "SELECT SUM(Importe) * -1  importe, C.Leyenda leyenda FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "  +        
+                               " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 1 GROUP BY C.Leyenda"  +
+
+                     " ) as resul   GROUP BY resul.leyenda"
+            
+            ;        
             
         const data = await executeQuery(query);  
        
