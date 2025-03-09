@@ -214,8 +214,8 @@ ObtenerSaldo = async(req, res = response ) => {
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');  
       
 
-        const query ="SELECT * FROM TableP  WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
-            console.log (query);
+        const query ="SELECT P.*, C.Leyenda leyenda FROM TableP P JOIN TableC C  ON P.Categoria = C.Numero  WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
+           
         const data = await executeQuery(query);  
        
         const mappedData = data.map(row => ({           
@@ -225,6 +225,7 @@ ObtenerSaldo = async(req, res = response ) => {
             nombre:row.concepto,
             token:'',
             id: row.id,
+            leyenda: row.leyenda
           
 
         }));
