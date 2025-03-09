@@ -329,26 +329,29 @@ ObtenerEstadisticas = async(req, res = response ) => {
         const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');        
 
-        const query ="SELECT SUM(resul.Importe) importe,resul.leyenda leyenda " +
+        const query ="SELECT SUM(resul.Importe) importe,resul.leyenda leyenda , resul.nombre nombre" +
 
                     " FROM ("        +
-                              " SELECT SUM(Importe) importe, C.Leyenda leyenda FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
-                              " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda"  +
+                              " SELECT SUM(Importe) importe, C.Leyenda leyenda, C.Nombre nombre FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
+                              " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda, C.Nombre"  +
 
                               " UNION ALL "  +
 
-                               "SELECT SUM(Importe) * -1  importe, C.Leyenda leyenda FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "  +        
-                               " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 1 GROUP BY C.Leyenda"  +
+                               "SELECT SUM(Importe) * -1  importe, C.Leyenda leyenda, C.Nombre nombre FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "  +        
+                               " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 1 GROUP BY C.Leyenda, C.Nombre"  +
 
-                     " ) as resul   GROUP BY resul.leyenda"
+                     " ) as resul   GROUP BY resul.leyenda, resul.nombre"
             
             ;        
             
         const data = await executeQuery(query);  
+     
        
         const mappedData = data.map(row => ({           
             importe: row.importe,           
-            leyenda: row.leyenda
+            leyenda: row.leyenda,
+            nombre: row.nombre,
+
 
         }));
            
@@ -359,7 +362,8 @@ ObtenerEstadisticas = async(req, res = response ) => {
         console.log('paso');
         return res.json({
             importe: -1,           
-            leyenda: ''
+            leyenda: '',
+            nombre: ''
         });
     }   
   
