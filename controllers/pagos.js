@@ -325,32 +325,33 @@ ObtenerEstadisticas = async(req, res = response ) => {
         const token = req.header('x-token');
        
         const { usuario,fechaDesde,fechaFin} = req.query; 
+       
 
         const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');        
 
-        const query ="SELECT SUM(resul.Importe) importe,resul.leyenda leyenda , resul.nombre nombre" +
+        const query ="SELECT SUM(resul.Importe) importe,resul.leyenda leyenda , resul.nombre nombre, resul.numero " +
 
                     " FROM ("        +
-                              " SELECT SUM(Importe) importe, C.Leyenda leyenda, C.Nombre nombre FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
-                              " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda, C.Nombre"  +
+                              " SELECT SUM(Importe) importe, C.Leyenda leyenda, C.Nombre nombre, C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
+                              " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda, C.Nombre, C.Numero"  +
 
                               " UNION ALL "  +
 
-                               "SELECT SUM(Importe) * -1  importe, C.Leyenda leyenda, C.Nombre nombre FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "  +        
-                               " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 1 GROUP BY C.Leyenda, C.Nombre"  +
+                               "SELECT SUM(Importe) * -1  importe, C.Leyenda leyenda, C.Nombre nombre,  C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "  +        
+                               " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 1 GROUP BY C.Leyenda, C.Nombre, C.Numero"  +
 
-                     " ) as resul   GROUP BY resul.leyenda, resul.nombre"
+                     " ) as resul   GROUP BY resul.leyenda, resul.nombre, resul.numero"
             
-            ;        
+            ;               
             
-        const data = await executeQuery(query);  
-     
+        const data = await executeQuery(query);       
        
         const mappedData = data.map(row => ({           
             importe: row.importe,           
             leyenda: row.leyenda,
             nombre: row.nombre,
+            numero: row.numero
 
 
         }));
@@ -363,7 +364,42 @@ ObtenerEstadisticas = async(req, res = response ) => {
         return res.json({
             importe: -1,           
             leyenda: '',
-            nombre: ''
+            nombre: '',
+            numero: -1
+        });
+    }   
+  
+   }
+
+   CargarRegistrosFechasPorLeyenda = async(req, res = response ) => {  
+
+    try{
+       
+        const token = req.header('x-token');
+       
+        const { usuario,fechaDesde,fechaFin,numero} = req.query; 
+
+        const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
+        const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');  
+      
+
+        const query ="SELECT P.* FROM TableP P  WHERE  Categoria = " + numero + " AND Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
+           
+        const data = await executeQuery(query);  
+       
+        const mappedData = data.map(row => ({           
+            importe: row.importe,          
+            nombre:row.concepto,
+        }));
+
+        return res.json(mappedData);
+
+
+    }catch(error){      
+
+        return res.json({
+            importe: -1,            
+            nombre:'',            
         });
     }   
   
@@ -381,5 +417,6 @@ ObtenerEstadisticas = async(req, res = response ) => {
     ComprobarUsuario,
     ComprobarToken,
     CargarCategorias,
-    ObtenerEstadisticas
+    ObtenerEstadisticas,
+    CargarRegistrosFechasPorLeyenda
  }
