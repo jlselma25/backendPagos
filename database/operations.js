@@ -14,10 +14,11 @@ async function executeQuery(query) {
         
         return result.recordset; // Retornar los registros obtenidos
     } catch (err) {
+      
         console.error('Error al ejecutar la consulta:', err);
         throw err;
     } finally {     
-
+       
         if (pool) {
             await pool.close();
         }

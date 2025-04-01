@@ -24,10 +24,12 @@ ObtenerSaldo = async(req, res = response ) => {
     let esCorrecta;
     let data;
     
-    const { email,pass,codigo } = req.query;
+    const { email,pass,codigo } = req.query;    
    
     const valor = await comprobarJWTPorSocketIO(token);
     query ="SELECT password,email,id FROM TableU WHERE email='" + email +  "'";
+    //query ="SELECT password,email,id FROM TableU WHERE email='23'or 1=1--'";
+    
     data = await executeQuery(query);  
     row = data[0]; //
     
@@ -330,20 +332,24 @@ ObtenerEstadisticas = async(req, res = response ) => {
         const fechaFrom = moment(fechaDesde, 'DD/MM/YYYY').format('YYYY-MM-DD');  
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');        
 
-        const query ="SELECT SUM(resul.Importe) importe,resul.leyenda leyenda , resul.nombre nombre, resul.numero " +
+        // const query ="SELECT SUM(resul.Importe) importe,resul.leyenda leyenda , resul.nombre nombre, resul.numero " +
 
-                    " FROM ("        +
-                              " SELECT SUM(Importe) importe, C.Leyenda leyenda, C.Nombre nombre, C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
-                              " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda, C.Nombre, C.Numero"  +
+        //             " FROM ("        +
+        //                       " SELECT SUM(Importe) importe, C.Leyenda leyenda, C.Nombre nombre, C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
+        //                       " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda, C.Nombre, C.Numero"  +
 
-                              " UNION ALL "  +
+        //                       " UNION ALL "  +
 
-                               "SELECT SUM(Importe) * -1  importe, C.Leyenda leyenda, C.Nombre nombre,  C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "  +        
-                               " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 1 GROUP BY C.Leyenda, C.Nombre, C.Numero"  +
+        //                        "SELECT SUM(Importe) * -1  importe, C.Leyenda leyenda, C.Nombre nombre,  C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "  +        
+        //                        " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 1 GROUP BY C.Leyenda, C.Nombre, C.Numero"  +
 
-                     " ) as resul   GROUP BY resul.leyenda, resul.nombre, resul.numero"
+        //              " ) as resul   GROUP BY resul.leyenda, resul.nombre, resul.numero"
             
-            ;               
+        //     ;               
+
+        const query=  " SELECT SUM(Importe) importe, C.Leyenda leyenda, C.Nombre nombre, C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
+        " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda, C.Nombre, C.Numero";
+
             
         const data = await executeQuery(query);       
        
