@@ -350,6 +350,8 @@ ObtenerEstadisticas = async(req, res = response ) => {
         const query=  " SELECT SUM(Importe) importe, C.Leyenda leyenda, C.Nombre nombre, C.Numero numero FROM TableP TP JOIN TableC C ON TP.Categoria = C.Numero "        +
         " WHERE Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + "  AND Tipo = 2 GROUP BY C.Leyenda, C.Nombre, C.Numero";
 
+      
+
             
         const data = await executeQuery(query);       
        
@@ -389,7 +391,7 @@ ObtenerEstadisticas = async(req, res = response ) => {
         const fechaTo = moment(fechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD');  
       
 
-        const query ="SELECT P.* FROM TableP P  WHERE  Categoria = " + numero + " AND Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
+        const query ="SELECT P.* FROM TableP P  WHERE  Tipo <> 1 AND Categoria = " + numero + " AND Fecha >='" + fechaFrom + " 0:00:00'  AND Fecha <= '" + fechaTo + " 23:59:59' AND Usuario =" + usuario + " ORDER BY Id DESC";     
            
         const data = await executeQuery(query);  
        
