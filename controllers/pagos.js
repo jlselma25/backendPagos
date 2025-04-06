@@ -251,12 +251,27 @@ ObtenerSaldo = async(req, res = response ) => {
    }
 
 
-   EliminarRegistro = async(req, res = response ) => {    
-   
+   EliminarRegistro = async(req, res = response ) => {      
     
-    const { id } = req.query;      
-    const query ="DELETE FROM TableP WHERE id=" + id ;   
+   
+    const { id , importe} = req.query;      
+  
+  
+    
+    let query ="DELETE FROM TableP WHERE id=" + id ;   
     data = await executeQuery(query);   
+
+
+    query ="SELECT TOP 1 id, saldo FROM TableP ORDER BY Id DESC" ;   
+
+    data = await executeQuery(query);      
+
+    if(data.length > 0){
+
+        query = "UPDATE TableP SET Saldo = Saldo +  " +  importe + " WHERE id =" + data[0].id;       
+        await executeQuery(query);   
+              
+    }
     
     try{    
         return res.json({
